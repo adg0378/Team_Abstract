@@ -17,6 +17,7 @@
 #include "Core/State/SPSelectionManager.h"
 #include "Core/State/SPSimulationManager.h"
 #include "Core/State/SPWorldManager.h"
+#include "Core/State/SPPlacementManager.h"
 #include "Kismet/GameplayStatics.h"
 
 ASPGameState::ASPGameState() {
@@ -31,6 +32,7 @@ ASPGameState::ASPGameState() {
 	ObstacleManagerToSpawn = USPObstacleManager::StaticClass();
 	SimulationManagerToSpawn = USPSimulationManager::StaticClass();
 	SelectionManagerToSpawn = USPSelectionManager::StaticClass();
+	PlacementManagerToSpawn = USPPlacementManager::StaticClass();
 }
 
 ASPGameState* ASPGameState::GetSPGameState(const UObject* WorldContextObject) {
@@ -74,6 +76,7 @@ void ASPGameState::BeginPlay() {
 	ObstacleManager = NewObject<USPObstacleManager>(this, ObstacleManagerToSpawn);
 	SimulationManager = NewObject<USPSimulationManager>(this, SimulationManagerToSpawn);
 	SelectionManager = NewObject<USPSelectionManager>(this, SelectionManagerToSpawn);
+	PlacementManager = NewObject<USPPlacementManager>(this, PlacementManagerToSpawn);
 
 	Preferences->Setup();
 	AuthManager->Setup();
@@ -85,6 +88,7 @@ void ASPGameState::BeginPlay() {
 	ObstacleManager->Setup();
 	SimulationManager->Setup();
 	SelectionManager->Setup();
+	PlacementManager->Setup();
 
 	// POST SETUP
 
@@ -97,6 +101,7 @@ void ASPGameState::BeginPlay() {
 	ObstacleManager->PostSetup();
 	SimulationManager->PostSetup();
 	SelectionManager->PostSetup();
+	PlacementManager->PostSetup();
 
 	Logger->Info(TEXT("Initialized successfully"));
 }
@@ -104,6 +109,7 @@ void ASPGameState::BeginPlay() {
 void ASPGameState::EndPlay(const EEndPlayReason::Type EndPlayReason) {
 	// PRE-TEARDOWN
 
+	PlacementManager->PreTeardown();
 	SelectionManager->PreTeardown();
 	SimulationManager->PreTeardown();
 	ObstacleManager->PreTeardown();
@@ -116,6 +122,7 @@ void ASPGameState::EndPlay(const EEndPlayReason::Type EndPlayReason) {
 
 	// TEARDOWN
 
+	PlacementManager->Teardown();
 	SelectionManager->Teardown();
 	SimulationManager->Teardown();
 	ObstacleManager->Teardown();

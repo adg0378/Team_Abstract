@@ -1,11 +1,25 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright (c) 2025 Synetos Aerospace
 
 
 #include "Core/Player/SPPlayerController.h"
 #include "GameFramework/GameUserSettings.h"
+#include "Kismet/GameplayStatics.h"
 #include "Core/State/SPGameState.h"
 #include "Core/State/SPWorldManager.h"
+#include "Core/State/SPPlacementManager.h"
+#include "Core/State/SPSelectionManager.h"
 #include "Core/Player/SPMainCamera.h"
+
+ASPPlayerController* ASPPlayerController::GetSPPlayerController(const UObject* WorldContextObject) {
+	UWorld* World = WorldContextObject->GetWorld();
+	APlayerController* PC = World ? UGameplayStatics::GetPlayerController(WorldContextObject, 0) : nullptr;
+	ASPPlayerController* PlayerController = PC ? Cast<ASPPlayerController>(PC) : nullptr;
+
+	if (!PlayerController) {
+		UE_LOG(LogTemp, Warning, TEXT("Failed to get SPMainCamera"));
+	}
+	return PlayerController;
+}
 
 ASPPlayerController::ASPPlayerController() {
 	bShowMouseCursor = true;
@@ -14,6 +28,7 @@ ASPPlayerController::ASPPlayerController() {
 void ASPPlayerController::BeginPlay() {
 	Super::BeginPlay();
 
+	GameStateRef = ASPGameState::GetSPGameState(this);
 	MainCameraRef = ASPMainCamera::GetSPMainCamera(this);
 
 	SetupEnhancedInput();
@@ -79,6 +94,30 @@ void ASPPlayerController::IAMovement(FVector ActionValue) {
 	}
 }
 
+void ASPPlayerController::IADoActionStarted() {
+	if (GameStateRef->PlacementManager->IsPlacementModeEnabled()) {
+		GameStateRef->PlacementManager->SpawnActor();
+	}
+	else {
+		FVector WorldLocation;
+		FVector WorldDirection;
+		DeprojectMousePositionToWorld(WorldLocation, WorldDirection);
+		GameStateRef->SelectionManager->CheckMouseLocationForDeselect(WorldLocation, WorldDirection);
+	}
+}
+
+void ASPPlayerController::IADoActionCompleted() {
+	GameStateRef->PlacementManager->StopDraggingObject();
+}
+
+void ASPPlayerController::IAMultipleSelect() {
+	GameStateRef->PlacementManager->ToggleMultipleSelectMode();
+}
+
+void ASPPlayerController::IADelete() {
+	GameStateRef->SelectionManager->DeleteSelected();
+}
+
 void ASPPlayerController::ChangeCameraType(uint8 CameraTypeIndex) {
 	if (CameraTypeIndex == 0U) {
 		IASwapCamera1();
@@ -96,7 +135,7 @@ void ASPPlayerController::IASwapCamera1() {
 		SetShowMouseCursor(false);
 		ShowCursorInFirstPersonPressed = false;
 
-		ASPGameState::GetSPGameState(this)->WorldManager->SetCameraTypeFromIndex(0U);
+		GameStateRef->WorldManager->SetCameraTypeFromIndex(0U);
 	}
 }
 
@@ -104,7 +143,7 @@ void ASPPlayerController::IASwapCamera2() {
 	if (MainCameraRef) {
 		SetShowMouseCursor(true);
 
-		ASPGameState::GetSPGameState(this)->WorldManager->SetCameraTypeFromIndex(1U);
+		GameStateRef->WorldManager->SetCameraTypeFromIndex(1U);
 	}
 }
 
@@ -112,7 +151,7 @@ void ASPPlayerController::IASwapCamera3() {
 	if (MainCameraRef) {
 		SetShowMouseCursor(true);
 
-		ASPGameState::GetSPGameState(this)->WorldManager->SetCameraTypeFromIndex(2U);
+		GameStateRef->WorldManager->SetCameraTypeFromIndex(2U);
 	}
 }
 
