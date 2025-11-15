@@ -1,0 +1,20 @@
+# build artifacts
+SkyPlexC2/Binaries
+SkyPlexC2/Build
+SkyPlexC2/Intermediate
+SkyPlexC2/Saved
+SkyPlexC2/DerivedDataCache
+
+# user specific data
+SkyPlexC2/SkyPlexUserData
+
+# tileset cache
+SkyPlexC2/*.sqlite
+
+# visual studio files
+SkyPlexC2/SkyPlexC2.sln
+SkyPlexC2/.vs
+.vs
+
+# common package dir
+Windows/
