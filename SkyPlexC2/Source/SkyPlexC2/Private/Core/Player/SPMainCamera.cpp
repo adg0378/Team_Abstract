@@ -14,6 +14,8 @@
 #include "Util/SPGeoUtility.h"
 #include "Util/SPAssetUtility.h"
 #include "Core/State/SPGameState.h"
+#include "Core/SPPreferences.h"
+#include "Core/State/SPWorldManager.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "SPEnvConstants.h"
 #include "CesiumGlobeAnchorComponent.h"
@@ -90,19 +92,25 @@ ASPMainCamera::ASPMainCamera()
 void ASPMainCamera::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	// TODO: set FOV from preferences and bind fov to on preferences updates
+
+	ASPGameState* GameState = ASPGameState::GetSPGameState(this);
+	USPPreferences* Prefs = GameState->Preferences;
+	const FSPPreferencesStruct& PrefRef = Prefs->GetPreferencesRef();
+	SetFOV(PrefRef.CameraPreferences.CameraFOVDeg);
+	OnPreferencesUpdated(PrefRef, PrefRef);
+
+	Prefs->OnPreferencesUpdated.AddDynamic(this, &ASPMainCamera::OnPreferencesUpdated);
 
 	LoadCameraLocationData();
 
 	PerformZoomDependentUpdates();
 
-	// TODO: set active camera in world manager once added
+	GameState->WorldManager->SetActiveCamera(this);
 }
 
 void ASPMainCamera::PostInitializeComponents() {
 	Super::PostInitializeComponents();
-	/*FlyToComponent->OnFlightComplete.AddDynamic(this, &ASPMainCamera::OnFlightCompleted);*/
+	FlyToComponent->OnFlightComplete.AddDynamic(this, &ASPMainCamera::OnFlightCompleted);
 }
 
 void ASPMainCamera::EndPlay(const EEndPlayReason::Type EndPlayReason) {
@@ -149,7 +157,19 @@ void ASPMainCamera::CameraPitch(float Magnitude) {
 	}
 }
 
-void ASPMainCamera::SetCameraTypeFromIndex(uint8 Index) {
+void ASPMainCamera::GetZoomPercentage_Implementation(float& OutZoomPercentage) const {
+	OutZoomPercentage = (Zoom - MinZoom) / (MaxZoom - MinZoom);
+}
+
+void ASPMainCamera::GetCameraLocation_Implementation(FVector& OutCameraLocation) const {
+	OutCameraLocation = GetActorLocation();
+}
+
+void ASPMainCamera::GetCameraRotation_Implementation(FRotator& OutCameraRotation) const {
+	OutCameraRotation = GetControlRotation();
+}
+
+void ASPMainCamera::SetCameraTypeFromIndex_Implementation(uint8 Index) {
 	if (Index == 0U) {
 		SetCameraType(ECameraType::FirstPerson);
 	}
@@ -217,18 +237,17 @@ void ASPMainCamera::FlyToHeight(FVector LonLatHeight) {
 
 	FlyToComponent->InterruptFlight();
 
-	// TODO: get from preferences manager once added
-	bool InstantFlyTo = false;
+	ASPGameState* GameState = ASPGameState::GetSPGameState(this);
 
-	if (InstantFlyTo) {
-		// TODO: update timezone when world manager added
+	if (GameState->Preferences->GetPreferencesRef().CameraPreferences.InstantFlyTo) {
+		GameState->WorldManager->UpdateTimezone(LonLatHeight.X);
 		InstantTeleport(LonLatHeight);
 	}
 	else {
 		float Distance = USPGeoUtility::GeodesicDistance(LonLatHeight, GlobeAnchorComponent->GetLongitudeLatitudeHeight());
 		FlyToComponent->Duration = FMath::Min(Distance / MaxFlyToSpeed, MaxFlyToTimeS);
 
-		// TODO: update timezone when world manager added
+		GameState->WorldManager->UpdateTimezone(LonLatHeight.X);
 		FlyToComponent->FlyToLocationLongitudeLatitudeHeight(LonLatHeight, 0.0, 0.0, false);
 	}
 }
@@ -246,7 +265,7 @@ void ASPMainCamera::InstantTeleport(FVector LonLatHeight) {
 
 	World->GetTimerManager().SetTimer(InstantTeleportDelayHandle, this, &ASPMainCamera::OnInstantTeleportDelayFinished, 0.25f);
 
-	// TODO: cull objects when world manager added
+	ASPGameState::GetSPGameState(this)->WorldManager->CullObjects(LonLatHeight);
 }
 
 void ASPMainCamera::OnInstantTeleportDelayFinished() {
@@ -271,7 +290,8 @@ void ASPMainCamera::CalculateZMovement(float ZMagnitude, FVector& WorldDirection
 	FVector DownTraceEnd = WorldLocation + (UpVector * TraceDistance * -1.0);
 	FCollisionQueryParams Params;
 	Params.AddIgnoredActor(this);
-	DrawDebugLine(World, WorldLocation, DownTraceEnd, FColor::Green, false, 5.0f, 0, 2.0f);
+
+	// DrawDebugLine(World, WorldLocation, DownTraceEnd, FColor::Green, false, 5.0f, 0, 2.0f);
 	if (World->LineTraceSingleByChannel(Result, WorldLocation, DownTraceEnd, USPAssetUtility::LandscapeTraceChannel, Params)) {
 		float DistanceToMoveDown = Result.Distance - DistanceAboveEarthCM - HalfHeight;
 
@@ -288,7 +308,8 @@ void ASPMainCamera::CalculateZMovement(float ZMagnitude, FVector& WorldDirection
 	else {
 		FVector UpStart = WorldLocation + UpVector * TraceDistance;
 		FVector UpEnd = WorldLocation - UpVector * TraceDistance;
-		DrawDebugLine(World, UpStart, UpEnd, FColor::Green, false, 5.0f, 0, 2.0f);
+
+		// DrawDebugLine(World, UpStart, UpEnd, FColor::Green, false, 5.0f, 0, 2.0f);
 		if (World->LineTraceSingleByChannel(Result, UpStart, UpEnd, ECC_Visibility, Params)) {
 			UCharacterMovementComponent* Movement = GetCharacterMovement();
 			Scale = ((TraceDistance - Result.Distance) + HalfHeight + DistanceAboveEarthCM) / World->GetDeltaSeconds() / Movement->MaxFlySpeed;
@@ -358,7 +379,7 @@ void ASPMainCamera::LoadCameraLocationData() {
 		Zoom = ParsedLocation.ArmLength;
 	}
 
-	// TODO: Update time zone once world manager is added
+	ASPGameState::GetSPGameState(this)->WorldManager->UpdateTimezone(StartLoc.X);
 
 	// This correctly resets the object's rotation to avoid strange angle issues on startup
 	FlyToHeight(StartLoc);
@@ -425,5 +446,11 @@ void ASPMainCamera::SetFirstPersonCamera() {
 }
 
 void ASPMainCamera::OnFlightCompleted() {
-	// TODO: cull objects once world manager is added
+	ASPGameState::GetSPGameState(this)->WorldManager->CullObjects(GlobeAnchorComponent->GetLongitudeLatitudeHeight());
+}
+
+void ASPMainCamera::OnPreferencesUpdated(struct FSPPreferencesStruct PrevPreferences, FSPPreferencesStruct NewPreferences) {
+	SetFOV(NewPreferences.CameraPreferences.CameraFOVDeg);
+	OrbitSpeed = NewPreferences.CameraPreferences.Sensitivity;
+	CubeComponent->SetVisibility(NewPreferences.CameraPreferences.ShowCameraAnchorObject);
 }
