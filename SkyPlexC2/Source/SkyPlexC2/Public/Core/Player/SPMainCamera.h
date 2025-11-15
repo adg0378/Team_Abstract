@@ -33,25 +33,25 @@ struct FCameraLocationData
 	GENERATED_BODY()
 public:
 	UPROPERTY()
-	double Lon;
+	double Lon = 0.0;
 
 	UPROPERTY()
-	double Lat;
+	double Lat = 0.0;
 
 	UPROPERTY()
-	double Height;
+	double Height = 0.0;
 
 	UPROPERTY()
-	float ArmLength;
+	float ArmLength = 3000.0f;
 
 	UPROPERTY()
-	double Roll;
+	double Roll = 0.0f;
 
 	UPROPERTY()
-	double Pitch;
+	double Pitch = 0.0f;
 
 	UPROPERTY()
-	double Yaw;
+	double Yaw = 0.0f;
 };
 
 UCLASS(Blueprintable, BlueprintType)
