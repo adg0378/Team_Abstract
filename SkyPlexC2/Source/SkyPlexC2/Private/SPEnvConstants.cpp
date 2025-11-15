@@ -12,3 +12,8 @@ FString USPEnvConstants::GetCameraLocationPath() {
 	static FString CameraLocationPath = GetUserSavePath() / TEXT("cameraLocation.json");
 	return CameraLocationPath;
 }
+
+FString USPEnvConstants::GetPreferencesPath() {
+	static FString PreferencesPath = GetUserSavePath() / TEXT("preferences.json");
+	return PreferencesPath;
+}

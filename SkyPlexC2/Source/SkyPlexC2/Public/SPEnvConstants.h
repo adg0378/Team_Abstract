@@ -17,4 +17,5 @@ class SKYPLEXC2_API USPEnvConstants : public UBlueprintFunctionLibrary
 public:
 	static FString GetUserSavePath();
 	static FString GetCameraLocationPath();
+	static FString GetPreferencesPath();
 };

@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Core/Player/SPCameraInterface.h"
 #include "SPMainCamera.generated.h"
 
 UENUM(BlueprintType)
@@ -54,7 +55,7 @@ public:
 };
 
 UCLASS(Blueprintable, BlueprintType)
-class SKYPLEXC2_API ASPMainCamera : public ACharacter
+class SKYPLEXC2_API ASPMainCamera : public ACharacter, public ISPCameraInterface
 {
 	GENERATED_BODY()
 
@@ -81,9 +82,6 @@ public:
 	void CameraPitch(float Magnitude);
 
 	UFUNCTION(BlueprintCallable)
-	void SetCameraTypeFromIndex(uint8 Index);
-
-	UFUNCTION(BlueprintCallable)
 	void SetCameraType(ECameraType Type);
 
 	UFUNCTION(BlueprintCallable)
@@ -99,6 +97,11 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void InstantTeleport(FVector LonLatHeight);
+
+	virtual void GetZoomPercentage_Implementation(float& OutZoomPercentage) const;
+	virtual void GetCameraLocation_Implementation(FVector& OutCameraLocation) const;
+	virtual void GetCameraRotation_Implementation(FRotator& OutCameraRotation) const;
+	virtual void SetCameraTypeFromIndex_Implementation(uint8 Index);
 
 protected:
 	UPROPERTY(VisibleAnywhere)
@@ -163,4 +166,7 @@ private:
 
 	UFUNCTION()
 	void OnFlightCompleted();
+
+	UFUNCTION()
+	void OnPreferencesUpdated(struct FSPPreferencesStruct PrevPreferences, FSPPreferencesStruct NewPreferences);
 };

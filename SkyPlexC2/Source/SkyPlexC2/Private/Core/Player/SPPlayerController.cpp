@@ -3,6 +3,8 @@
 
 #include "Core/Player/SPPlayerController.h"
 #include "GameFramework/GameUserSettings.h"
+#include "Core/State/SPGameState.h"
+#include "Core/State/SPWorldManager.h"
 #include "Core/Player/SPMainCamera.h"
 
 ASPPlayerController::ASPPlayerController() {
@@ -94,10 +96,7 @@ void ASPPlayerController::IASwapCamera1() {
 		SetShowMouseCursor(false);
 		ShowCursorInFirstPersonPressed = false;
 
-		MainCameraRef->SetCameraTypeFromIndex(0U);
-
-		// TODO: make a camera swap event that the WB compass widget can subscribe to
-		// TODO: also swap MainCameraRef to getting the active camera instead and swapping to a specific camera index
+		ASPGameState::GetSPGameState(this)->WorldManager->SetCameraTypeFromIndex(0U);
 	}
 }
 
@@ -105,7 +104,7 @@ void ASPPlayerController::IASwapCamera2() {
 	if (MainCameraRef) {
 		SetShowMouseCursor(true);
 
-		MainCameraRef->SetCameraTypeFromIndex(1U);
+		ASPGameState::GetSPGameState(this)->WorldManager->SetCameraTypeFromIndex(1U);
 	}
 }
 
@@ -113,7 +112,7 @@ void ASPPlayerController::IASwapCamera3() {
 	if (MainCameraRef) {
 		SetShowMouseCursor(true);
 
-		MainCameraRef->SetCameraTypeFromIndex(2U);
+		ASPGameState::GetSPGameState(this)->WorldManager->SetCameraTypeFromIndex(2U);
 	}
 }
 
