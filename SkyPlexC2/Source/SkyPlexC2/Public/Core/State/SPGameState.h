@@ -49,6 +49,8 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly)
 	TSubclassOf<class USPSelectionManager> SelectionManagerToSpawn;
 
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly)
+	TSubclassOf<class USPPlacementManager> PlacementManagerToSpawn;
 
 	// Manager references and other common objects
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "State")
@@ -84,6 +86,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "State")
 	TObjectPtr<USPSelectionManager> SelectionManager;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "State")
+	TObjectPtr<USPPlacementManager> PlacementManager;
+
 	UPROPERTY(BlueprintReadOnly)
 	TObjectPtr<class ACesium3DTileset> CesiumTileset;
 
@@ -97,6 +102,23 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "SPGameState", meta = (WorldContext = "WorldContextObject"))
 	static ASPGameState* GetSPGameState(const UObject* WorldContextObject);
+
+	template <typename T>
+	void GenericSpawnActor(TSubclassOf<T> ActorType, FVector SpawnLocation, T*& OutActor, FVector SpawnScale = FVector(1.0f, 1.0f, 1.0f), FRotator SpawnRotation = FRotator::ZeroRotator) {
+		UWorld* World = GetWorld();
+		FString LogOrigin = TEXT("SpawnActor");
+
+		if (!World) {
+			UE_LOG(LogTemp, Error, TEXT("Failed to spawn: No world context"));
+			return;
+		}
+
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		FTransform SpawnTransform(SpawnRotation, SpawnLocation, SpawnScale);
+		T* SpawnedActor = World->SpawnActor<T>(ActorType, SpawnTransform, SpawnParams);
+		OutActor = SpawnedActor;
+	};
 
 protected:
 	virtual void BeginPlay() override;
