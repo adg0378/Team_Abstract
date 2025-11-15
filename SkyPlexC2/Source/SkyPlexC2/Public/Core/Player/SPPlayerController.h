@@ -15,6 +15,10 @@ class SKYPLEXC2_API ASPPlayerController : public APlayerController
 	GENERATED_BODY()
 
 public:
+
+	UFUNCTION(BlueprintCallable, Category = "SPPlayerController", meta = (WorldContext = "WorldContextObject"))
+	static ASPPlayerController* GetSPPlayerController(const UObject* WorldContextObject);
+
 	ASPPlayerController();
 
 	UFUNCTION(BlueprintCallable)
@@ -48,7 +52,17 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	void IAMovement(FVector ActionValue);
 
-	// TODO: add tick, do action, selection, multiselection, deselect, deletion when placement is added
+	UFUNCTION(BlueprintCallable)
+	void IADoActionStarted();
+
+	UFUNCTION(BlueprintCallable)
+	void IADoActionCompleted();
+
+	UFUNCTION(BlueprintCallable)
+	void IAMultipleSelect();
+
+	UFUNCTION(BlueprintCallable)
+	void IADelete();
 
 	/* First person */
 	UFUNCTION(BlueprintCallable)
@@ -69,7 +83,11 @@ protected:
 	void SetupEnhancedInput_Implementation();
 
 private:
+	UPROPERTY()
 	TObjectPtr<class ASPMainCamera> MainCameraRef;
+
+	UPROPERTY()
+	TObjectPtr<class ASPGameState> GameStateRef;
 
 	bool FreeCameraPressed = false;
 	bool ShowCursorInFirstPersonPressed = false;
