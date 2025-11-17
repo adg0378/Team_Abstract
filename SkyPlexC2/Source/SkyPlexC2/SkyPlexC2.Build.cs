@@ -1,5 +1,6 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright (c) 2025 Synetos Aerospace
 
+using System.IO;
 using UnrealBuildTool;
 
 public class SkyPlexC2 : ModuleRules
@@ -9,8 +10,28 @@ public class SkyPlexC2 : ModuleRules
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 		CppStandard = CppStandardVersion.Cpp20;
 		IncludeOrderVersion = EngineIncludeOrderVersion.Unreal5_5;
-	
-		PublicDependencyModuleNames.AddRange(new string[] {
+
+        string ThirdPartyDirectory = Path.Combine(ModuleDirectory, "ThirdParty");
+
+		string SQLitePath = Path.Combine(ThirdPartyDirectory, "SQLite");
+		string SQLiteDLLPath = Path.Combine(SQLitePath, "Win64", "sqlite3.dll");
+		string SQLiteIncludePath = Path.Combine(SQLitePath, "Include");
+
+        if (!File.Exists(SQLiteDLLPath))
+        {
+            throw new FileNotFoundException("sqlite3.dll not found at " + SQLiteDLLPath);
+        }
+
+        PrivateIncludePaths.AddRange(new string[] {
+            "SkyPlexC2/Private",
+        });
+
+        PublicIncludePaths.AddRange(new string[] {
+            "SkyPlexC2/Public",
+            SQLiteIncludePath,
+        });
+
+        PublicDependencyModuleNames.AddRange(new string[] {
 			"CesiumRuntime",
 			"Core",
 			"CoreUObject",
@@ -25,6 +46,18 @@ public class SkyPlexC2 : ModuleRules
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
+
+		RuntimeDependencies.Add("$(BinaryOutputDir)/sqlite3.dll", SQLiteDLLPath);
+
+		if (Target.Platform == UnrealTargetPlatform.Win64)
+		{
+			string SQLiteLibPath = Path.Combine(SQLitePath, "Win64", "sqlite3.lib");
+
+			PublicAdditionalLibraries.AddRange(new string[]
+			{
+				SQLiteLibPath,
+			});
+		}
 
 		// Uncomment if you are using Slate UI
 		// PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });
