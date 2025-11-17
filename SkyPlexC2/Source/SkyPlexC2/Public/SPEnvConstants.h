@@ -18,4 +18,9 @@ public:
 	static FString GetUserSavePath();
 	static FString GetCameraLocationPath();
 	static FString GetPreferencesPath();
+	static FString GetFlyToLocationPath();
+	static FString GetDatabasePath();
+
+	static const FString FIREBASE_URL;
+	static const FString GOOGLE_TOKEN_URL;
 };
