@@ -5,6 +5,9 @@
 #include "Util/SPHTTPUtility.h"
 #include "Core/SPLogger.h"
 #include "CesiumGeospatial/Ellipsoid.h"
+#include "CesiumEllipsoid.h"
+#include "CesiumGeoreference.h"
+#include "CesiumGeospatial/LocalHorizontalCoordinateSystem.h"
 
 // This is a sin but there isn't a good way to safely store keys like this externally
 // This is another reason why we should move to the typescript backend
@@ -242,4 +245,162 @@ double USPGeoUtility::ComputeDeltaLambda(
 				C *
 				CosSigma *
 				(2.0 * CosTwiceSigmaMidpoint * CosTwiceSigmaMidpoint - 1.0)));
+}
+
+const double USPGeoUtility::MetersFromLatitude(double Latitude, double Meters) {
+	UE_LOG(LogTemp, Warning, TEXT("M FROM LAT: og=%f ---- new=%f"), Latitude, Latitude + (Meters / SPGeoMath::METERS_PER_LAT))
+		return Latitude + (Meters / SPGeoMath::METERS_PER_LAT);
+}
+
+const double USPGeoUtility::MetersFromLongitude(double Longitude, double Meters, double Latitude) {
+	if (Latitude == -999.0f) {
+		return Longitude + (Meters / SPGeoMath::METERS_PER_LON);
+	}
+	UE_LOG(LogTemp, Warning, TEXT("M FROM LAT: og=%f ---- new=%f"), Longitude, Longitude + (Meters / (SPGeoMath::METERS_PER_LON * FMath::Cos(Latitude))))
+		return Longitude + (Meters / (SPGeoMath::METERS_PER_LON * FMath::Cos(Latitude)));
+}
+
+FVector USPGeoUtility::LatLonToLocal(
+	ACesiumGeoreference* Georeference,
+	const FVector& OriginLonLatHeight,
+	const FVector& PointLonLatHeight
+) {
+	UCesiumEllipsoid* Ellipsoid = Georeference->GetEllipsoid();
+	FVector ECEFOrigin = Ellipsoid->LongitudeLatitudeHeightToEllipsoidCenteredEllipsoidFixed(OriginLonLatHeight);
+	FVector ECEFPoint = Ellipsoid->LongitudeLatitudeHeightToEllipsoidCenteredEllipsoidFixed(PointLonLatHeight);
+
+	FVector Diff = ECEFPoint - ECEFOrigin;
+	double LatRad = FMath::DegreesToRadians(OriginLonLatHeight.Y);
+	double LonRad = FMath::DegreesToRadians(OriginLonLatHeight.X);
+
+	FVector East = FVector(-FMath::Sin(LonRad), FMath::Cos(LonRad), 0.0);
+	FVector North = FVector(-FMath::Sin(LatRad) * FMath::Cos(LonRad), -FMath::Sin(LatRad) * FMath::Sin(LonRad), FMath::Cos(LatRad));
+	FVector Up = FVector(FMath::Cos(LatRad) * FMath::Cos(LonRad), FMath::Cos(LatRad) * FMath::Sin(LonRad), FMath::Sin(LatRad));
+
+	double x = Diff.Dot(East);
+	double y = Diff.Dot(North);
+	double z = Diff.Dot(Up);
+
+	return FVector(x, y, z);
+}
+
+TArray<FVector> USPGeoUtility::LatLonToLocal(
+	ACesiumGeoreference* Georeference,
+	const FVector& OriginLonLatHeight,
+	const TArray<FVector>& PointLonLatHeights
+) {
+	UCesiumEllipsoid* Ellipsoid = Georeference->GetEllipsoid();
+	FVector ECEFOrigin = Ellipsoid->LongitudeLatitudeHeightToEllipsoidCenteredEllipsoidFixed(OriginLonLatHeight);
+
+	double LatRad = FMath::DegreesToRadians(OriginLonLatHeight.Y);
+	double LonRad = FMath::DegreesToRadians(OriginLonLatHeight.X);
+
+	FVector East = FVector(-FMath::Sin(LonRad), FMath::Cos(LonRad), 0.0);
+	FVector North = FVector(-FMath::Sin(LatRad) * FMath::Cos(LonRad), -FMath::Sin(LatRad) * FMath::Sin(LonRad), FMath::Cos(LatRad));
+	FVector Up = FVector(FMath::Cos(LatRad) * FMath::Cos(LonRad), FMath::Cos(LatRad) * FMath::Sin(LonRad), FMath::Sin(LatRad));
+
+	TArray<FVector> LocalPoints;
+	LocalPoints.Reserve(PointLonLatHeights.Num());
+
+	for (const FVector& Point : PointLonLatHeights) {
+		FVector ECEFPoint = Ellipsoid->LongitudeLatitudeHeightToEllipsoidCenteredEllipsoidFixed(Point);
+		FVector Diff = ECEFPoint - ECEFOrigin;
+
+		double x = Diff.Dot(East);
+		double y = Diff.Dot(North);
+		double z = Diff.Dot(Up);
+
+		LocalPoints.Push(FVector(x, y, z));
+	}
+
+	return LocalPoints;
+}
+
+TArray<FVector> USPGeoUtility::RotatePoints(
+	const TArray<FVector>& LocalPoints,
+	double AngleDeg
+) {
+	double A = FMath::DegreesToRadians(AngleDeg);
+	double CosA = FMath::Cos(A);
+	double SinA = FMath::Sin(A);
+
+	TArray<FVector> Res;
+	Res.Reserve(LocalPoints.Num());
+
+	for (auto& Point : LocalPoints) {
+		double X = Point.X * CosA - Point.Y * SinA;
+		double Y = Point.X * SinA + Point.Y * CosA;
+		Res.Add(FVector(X, Y, 0.0f));
+	}
+	return Res;
+}
+
+FVector USPGeoUtility::LocalToLatLon(
+	ACesiumGeoreference* Georeference,
+	const FVector& OriginLonLatHeight,
+	const FVector& PointLocal
+) {
+	double LatRad = FMath::DegreesToRadians(OriginLonLatHeight.Y);
+	double LonRad = FMath::DegreesToRadians(OriginLonLatHeight.X);
+
+	FVector East = FVector(-FMath::Sin(LonRad), FMath::Cos(LonRad), 0.0);
+	FVector North = FVector(-FMath::Sin(LatRad) * FMath::Cos(LonRad), -FMath::Sin(LatRad) * FMath::Sin(LonRad), FMath::Cos(LatRad));
+	FVector Up = FVector(FMath::Cos(LatRad) * FMath::Cos(LonRad), FMath::Cos(LatRad) * FMath::Sin(LonRad), FMath::Sin(LatRad));
+
+	UCesiumEllipsoid* Ellipsoid = Georeference->GetEllipsoid();
+	FVector ECEFOrigin = Ellipsoid->LongitudeLatitudeHeightToEllipsoidCenteredEllipsoidFixed(OriginLonLatHeight);
+
+	FVector ECEFPoint = ECEFOrigin + PointLocal.X * East + PointLocal.Y * North + PointLocal.Z * Up;
+
+	FVector LonLatHeight = Ellipsoid->EllipsoidCenteredEllipsoidFixedToLongitudeLatitudeHeight(ECEFPoint);
+	return LonLatHeight;
+}
+
+TArray<FVector> USPGeoUtility::LocalToLatLon(
+	ACesiumGeoreference* Georeference,
+	const FVector& OriginLonLatHeight,
+	const TArray<FVector>& PointLocals
+) {
+	double LatRad = FMath::DegreesToRadians(OriginLonLatHeight.Y);
+	double LonRad = FMath::DegreesToRadians(OriginLonLatHeight.X);
+
+	FVector East = FVector(-FMath::Sin(LonRad), FMath::Cos(LonRad), 0.0);
+	FVector North = FVector(-FMath::Sin(LatRad) * FMath::Cos(LonRad), -FMath::Sin(LatRad) * FMath::Sin(LonRad), FMath::Cos(LatRad));
+	FVector Up = FVector(FMath::Cos(LatRad) * FMath::Cos(LonRad), FMath::Cos(LatRad) * FMath::Sin(LonRad), FMath::Sin(LatRad));
+
+	UCesiumEllipsoid* Ellipsoid = Georeference->GetEllipsoid();
+	FVector ECEFOrigin = Ellipsoid->LongitudeLatitudeHeightToEllipsoidCenteredEllipsoidFixed(OriginLonLatHeight);
+
+	TArray<FVector> Res;
+	Res.Reserve(PointLocals.Num());
+
+	for (const auto& Point : PointLocals) {
+		FVector ECEFPoint = ECEFOrigin + Point.X * East + Point.Y * North + Point.Z * Up;
+		FVector LonLatHeight = Ellipsoid->EllipsoidCenteredEllipsoidFixedToLongitudeLatitudeHeight(ECEFPoint);
+		Res.Add(LonLatHeight);
+	}
+
+	return Res;
+}
+
+TArray<FVector2D> USPGeoUtility::GetPolygonLineIntersections(
+	const TArray<FVector>& PolyPointsLocal,
+	double LineY
+) {
+	TArray<FVector2D> Intersections;
+
+	int N = PolyPointsLocal.Num();
+	for (int i = 0; i < N; ++i) {
+		FVector P1 = PolyPointsLocal[i];
+		FVector P2 = PolyPointsLocal[(i + 1) % N];
+
+		if (P1.Y <= LineY && P2.Y >= LineY || P1.Y >= LineY && P2.Y <= LineY) {
+			float t = (LineY - P1.Y) / (P2.Y - P1.Y);
+			float X = P1.X + t * (P2.X - P1.X);
+			Intersections.Add(FVector2D(X, LineY));
+		}
+	}
+
+	Intersections.Sort([](const FVector2D& A, const FVector2D& B) { return A.X < B.X; });
+	return Intersections;
 }
