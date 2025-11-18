@@ -295,6 +295,47 @@ public:
 	UFUNCTION(BlueprintCallable)
 	static void ClearAddressPredictionSession();
 
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Geographic")
+	static const double MetersFromLatitude(double Latitude, double Meters);
+
+	/* Setting latitude to -999 will return a faster but less-accurate value */
+	UFUNCTION(BlueprintPure, BlueprintCallable, Category = "Geographic")
+	static const double MetersFromLongitude(double Longitude, double Meters, double Latitude = -999.0f);
+
+	static FVector LatLonToLocal(
+		class ACesiumGeoreference* Georeference,
+		const FVector& OriginLonLatHeight,
+		const FVector& PointLonLatHeight
+	);
+
+	static TArray<FVector> LatLonToLocal(
+		ACesiumGeoreference* Georeference,
+		const FVector& OriginLonLatHeight,
+		const TArray<FVector>& PointLonLatHeights
+	);
+
+	static FVector LocalToLatLon(
+		ACesiumGeoreference* Georeference,
+		const FVector& OriginLonLatHeight,
+		const FVector& PointLocal
+	);
+
+	static TArray<FVector> LocalToLatLon(
+		ACesiumGeoreference* Georeference,
+		const FVector& OriginLonLatHeight,
+		const TArray<FVector>& PointLocals
+	);
+
+	static TArray<FVector> RotatePoints(
+		const TArray<FVector>& LocalPoints,
+		double AngleDeg
+	);
+
+	static TArray<FVector2D> GetPolygonLineIntersections(
+		const TArray<FVector>& PolyPointsLocal,
+		double LineY
+	);
+
 private:
 	static double ComputeDeltaLambda(
 		const double& Flattening,
