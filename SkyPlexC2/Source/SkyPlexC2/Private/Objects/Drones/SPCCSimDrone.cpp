@@ -31,6 +31,8 @@ void ASPCCSimDrone::DestroySelf_Implementation() {
 }
 void ASPCCSimDrone::BeginDestroy() {
     CloseWebsocket();
+    FPlatformProcess::TerminateProc(this->PX4Processes.px4Handle);
+    FPlatformProcess::TerminateProc(this->PX4Processes.ros2Handle);
     Super::BeginDestroy();
 }
 

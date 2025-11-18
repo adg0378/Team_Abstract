@@ -36,7 +36,7 @@ void USPDroneManager::Setup_Implementation() {
 }
 
 void USPDroneManager::Teardown_Implementation() {
-    // TODO: stuff will probably have to go here like closing commandline connection to determine port, etc.
+    cli->KillAllWSL();
 }
 
 void USPDroneManager::ApplyPreferencesUpdates_Implementation(FSPPreferencesStruct PrevPreferences, FSPPreferencesStruct NewPreferences) {
