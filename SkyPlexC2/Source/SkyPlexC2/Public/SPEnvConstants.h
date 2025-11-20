@@ -20,7 +20,10 @@ public:
 	static FString GetPreferencesPath();
 	static FString GetFlyToLocationPath();
 	static FString GetDatabasePath();
+	static FString GetObstacleCachePath();
 
 	static const FString FIREBASE_URL;
 	static const FString GOOGLE_TOKEN_URL;
+	static const FString OBSTACLES_URL;
+	static const FString ADSB_URL;
 };
