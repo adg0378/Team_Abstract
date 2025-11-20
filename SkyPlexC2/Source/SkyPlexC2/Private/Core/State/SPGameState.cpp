@@ -136,3 +136,39 @@ void ASPGameState::EndPlay(const EEndPlayReason::Type EndPlayReason) {
 
 	Super::EndPlay(EndPlayReason);
 }
+
+void ASPGameState::SampleHeights(const TArray<FVector>& LonLatHeightArray, FSPSampleHeightCallback Callback) {
+	UWorld* World = GetWorld();
+	FString LogOrigin = TEXT("SampleHeights");
+
+	if (!World) {
+		Logger->Error(TEXT("Failed to sample heights: No world context"), LogOrigin);
+		const TArray<FVector> Result;
+		Callback(Result);
+	}
+
+	FCesiumSampleHeightMostDetailedCallback CesiumCallback = FCesiumSampleHeightMostDetailedCallback::CreateLambda(
+		[Callback, this, LogOrigin](ACesium3DTileset* Tileset, const TArray<FCesiumSampleHeightResult>& Results, const TArray<FString>& Warnings) {
+			TArray<FVector> SampledPositions;
+			SampledPositions.Reserve(Results.Num());
+
+			for (const FString& Warning : Warnings) {
+				Logger->Warn(Warning, LogOrigin);
+			}
+
+			for (const FCesiumSampleHeightResult& Result : Results) {
+				const FVector& InputPos = Result.LongitudeLatitudeHeight;
+				if (Result.SampleSuccess) {
+					SampledPositions.Add(FVector(InputPos.X, InputPos.Y, InputPos.Z));
+				}
+				else {
+					SampledPositions.Add(FVector(InputPos.X, InputPos.Y, -9999.0));
+				}
+			}
+
+			Callback(SampledPositions);
+		}
+	);
+
+	CesiumTileset->SampleHeightMostDetailed(LonLatHeightArray, CesiumCallback);
+}
