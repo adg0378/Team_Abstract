@@ -15,7 +15,7 @@ void USPFlyToManager::Setup_Implementation() {
 		LoadLocations();
 	}
 	else {
-		if (!UFileUtility::WriteStringToFile(*USPEnvConstants::GetFlyToLocationPath(), TEXT(""))) {
+		if (!UFileUtility::WriteStringToFile(*USPEnvConstants::GetFlyToLocationPath(), TEXT("{}"))) {
 			LOG->Error(TEXT("Failed to create fly to location file"), GetClass()->GetName());
 		}
 	}
