@@ -81,7 +81,7 @@ int USPSQLiteUtility::MigrateDatabase(sqlite3* connection, const MigrationMap mi
 
 	int latestVersion = migrations.rbegin()->first;
 
-	UE_LOG(LogTemp, Error, TEXT("Current database version: %i - Latest version: %i"), currentVersion, latestVersion);
+	UE_LOG(LogTemp, Log, TEXT("Current database version: %i - Latest version: %i"), currentVersion, latestVersion);
 
 	// if any failure occurs, migration will cease
 	for (int version = currentVersion + 1; version <= latestVersion; ++version) {
