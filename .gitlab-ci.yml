@@ -1,0 +1,13 @@
+build-job:
+  stage: build
+  script:
+    - .\buildme.bat
+  tags:
+    - unreal
+  artifacts:
+    name: skyplexc2
+    expose_as: 'SkyplexC2 build'
+    paths:
+      - build
+    
+    
