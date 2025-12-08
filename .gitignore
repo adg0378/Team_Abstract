@@ -18,3 +18,6 @@ SkyPlexC2/.vs
 
 # common package dir
 Windows/
+
+#Jetbrains IDE configs
+.idea/

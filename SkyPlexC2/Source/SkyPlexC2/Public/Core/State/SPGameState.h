@@ -4,7 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameStateBase.h"
+#include "CesiumGeoreference.h"
+#include "Core/SPLogger.h"
 #include "SPGameState.generated.h"
+
+using FSPSampleHeightCallback = TFunction<void(const TArray<FVector>& SampledPositions)>;
 
 /**
  * Stores managers, plugins, and other commonly accessed references
@@ -17,7 +21,7 @@ class SKYPLEXC2_API ASPGameState : public AGameStateBase
 public:
 	// Object types to spawn to support blueprint defined managers
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly)
-	TSubclassOf<class USPLogger> LoggerToSpawn;
+	TSubclassOf<USPLogger> LoggerToSpawn;
 
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly)
 	TSubclassOf<class USPPreferences> PreferencesManagerToSpawn;
@@ -93,7 +97,7 @@ public:
 	TObjectPtr<class ACesium3DTileset> CesiumTileset;
 
 	UPROPERTY(BlueprintReadOnly)
-	TObjectPtr<class ACesiumGeoreference> CesiumGeoreference;
+	TObjectPtr<ACesiumGeoreference> CesiumGeoreference;
 
 	UPROPERTY(BlueprintReadOnly)
 	TObjectPtr<UWorld> SPWorld;
@@ -119,6 +123,33 @@ public:
 		T* SpawnedActor = World->SpawnActor<T>(ActorType, SpawnTransform, SpawnParams);
 		OutActor = SpawnedActor;
 	};
+
+	template <typename T>
+	void GenericSpawnActorAtLonLatHeight(TSubclassOf<T> ActorType, FVector LonLatHeight, T*& OutActor, FVector SpawnScale = FVector(1.0f, 1.0f, 1.0f), FRotator SpawnRotation = FRotator::ZeroRotator) {
+		UWorld* World = GetWorld();
+		FString LogOrigin = TEXT("SpawnActorAtLonLatHeight");
+
+		if (!World) {
+			Logger->Error(TEXT("Failed to spawn: No world context"), LogOrigin);
+			return;
+		}
+
+		ACesiumGeoreference* Georeference = ACesiumGeoreference::GetDefaultGeoreference(World);
+		if (!Georeference) {
+			Logger->Error(TEXT("Failed to spawn: No georeference"), LogOrigin);
+			return;
+		}
+
+		FVector UnrealPos = Georeference->TransformLongitudeLatitudeHeightPositionToUnreal(LonLatHeight);
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		FTransform SpawnTransform(SpawnRotation, UnrealPos, SpawnScale);
+
+		T* SpawnedActor = World->SpawnActor<T>(ActorType, SpawnTransform, SpawnParams);
+		OutActor = SpawnedActor;
+	};
+
+	void SampleHeights(const TArray<FVector>& LonLatHeightArray, FSPSampleHeightCallback Callback);
 
 protected:
 	virtual void BeginPlay() override;
