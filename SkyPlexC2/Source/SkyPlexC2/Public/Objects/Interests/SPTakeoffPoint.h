@@ -3,8 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Objects/Interests/SPInterest.h"
+#include "Objects/Interests/Interest.h"
 #include "SPTakeoffPoint.generated.h"
+
+// forward declarations
+class APlaceablePoint;
 
 USTRUCT(BlueprintType)
 struct FSPTakeoffPointParams {
@@ -12,19 +15,30 @@ struct FSPTakeoffPointParams {
 
 public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	float Altitude = 200.0f;
+	float Altitude = 61.0f;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	float InitialSpeedMS = 5.0f;
 };
 
 /**
- * Takeoff Point
+ * 
  */
-UCLASS()
-class SKYPLEXC2_API USPTakeoffPoint : public USPInterest
+UCLASS(Blueprintable, BlueprintType)
+class SKYPLEXC2_API USPTakeoffPoint : public UInterest
 {
 	GENERATED_BODY()
-	
+
+
 public:
-	FSPTakeoffPointParams Params;
+	UFUNCTION(BlueprintCallable)
+	FSPTakeoffPointParams GetParams() const;
+
+	virtual FString GetSerializedParams() const;
+	virtual void SetSerializedParams(const FString& ParamsJson) override;
+
+	UFUNCTION(BlueprintCallable)
+	void SetParams(UPARAM(ref) FSPTakeoffPointParams& InParams, bool UpdateDB = false);
 
 	virtual EInterestType GetInterestType() const override;
 
@@ -33,16 +47,19 @@ public:
 	virtual void SetName(FString InName) override;
 
 	UFUNCTION(BlueprintCallable)
-	void SetPoint(class ASPPlaceablePoint* InPoint);
+	void SetPoint(APlaceablePoint* InPoint);
 
 	UFUNCTION(BlueprintCallable)
-	ASPPlaceablePoint* GetPoint() const;
+	void GetPoint(APlaceablePoint*& OutPoint) const;
 
-	virtual void ToggleCull_Implementation(bool IsCulled) override;
+	virtual void ToggleCull_Implementation(bool IsCulled, bool FromFlyTo) override;
 
 	virtual void DestroySelf_Implementation();
 
+	virtual void GetInteractionBoxKeyVals_Implementation(TMap<FString, FInteractionBoxValue>& OutKeyVals);
 private:
 	UPROPERTY()
-	TObjectPtr<ASPPlaceablePoint> Point;
+	TObjectPtr<APlaceablePoint> Point;
+
+	FSPTakeoffPointParams Params;
 };

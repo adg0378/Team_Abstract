@@ -29,10 +29,11 @@ FString USPEnvConstants::GetDatabasePath() {
 }
 
 FString USPEnvConstants::GetObstacleCachePath() {
-	static FString ObstacleCachePath = GetUserSavePath() / TEXT("obstacles.db");
+	static FString ObstacleCachePath = GetUserSavePath() / TEXT("obstacles.json");
 	return ObstacleCachePath;
 }
 
+// const FString USPEnvConstants::OBSTACLES_URL = "http://localhost:3000/api/";
 const FString USPEnvConstants::FIREBASE_URL = TEXT("https://identitytoolkit.googleapis.com/v1/");
 const FString USPEnvConstants::GOOGLE_TOKEN_URL = TEXT("https://securetoken.googleapis.com/v1/");
 const FString USPEnvConstants::OBSTACLES_URL = TEXT("https://obstacles-backend-802961417629.us-central1.run.app/api/");
