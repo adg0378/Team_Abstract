@@ -2,7 +2,7 @@
 setlocal 
 
 set UPROJECT=%CI_PROJECT_DIR%\SkyPlexC2\SkyPlexC2.uproject
-set ARCHIVE_DIR=%CI_PROJECT_DIR%\SkyPlexC2\BuildOutput
+set ARCHIVE_DIR=%CI_PROJECT_DIR%\build
 
 call "C:\Program Files\Epic Games\UE_5.5\Engine\Build\BatchFiles\RunUAT.bat" ^
     BuildCookRun ^
