@@ -1,6 +1,7 @@
 build-job:
   stage: build
   script:
+    - cmd /c mkdir build
     - .\buildme.bat
   tags:
     - unreal
@@ -9,5 +10,3 @@ build-job:
     expose_as: 'SkyplexC2 build'
     paths:
       - build
-    
-    
