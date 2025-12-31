@@ -31,9 +31,7 @@ Build the [Micro-XRCE-DDS-Agent](https://docs.px4.io/main/en/middleware/uxrce_dd
 
 The Gazebo simulator is included with the PX4 software.
 
-Clone the main px4 repository (recursively, as there are submodules)
-
-NOTE: CC-simulator's px4_msgs is v1.15, so the corresponding branch of PX4/Gazebo should be cloned:
+Clone the v1.15 branch of the px4 repository (recursively, as there are submodules).
 
 ``` 
 git clone https://github.com/PX4/PX4-Autopilot.git --recursive -b release/1.15
@@ -57,7 +55,7 @@ Download [QGroundControl](https://qgroundcontrol.com/) according to instructions
 
 **CC Simulator**
 
-CC Simulator communicates with SkyPlexC2 via web sockets for SkyPlexC2 to send commands to drone(s) or swarm(s) over DDS, and receive telemetry from them.
+CC Simulator communicates with SkyPlexC2 via web sockets for commanding and telemetry reading.
 
 SkyPlexC2 currently only supports PX4 whereas CC Simulator has a PX4 and ArduPilot setup process. Clone it and follow the [CC Simulator PX4 Setup Guide](https://github.com/prius-intelli/cc-simulator/blob/develop/config/PX4Setup.md) per its instructions. Many of its steps have already been completed above.
 
