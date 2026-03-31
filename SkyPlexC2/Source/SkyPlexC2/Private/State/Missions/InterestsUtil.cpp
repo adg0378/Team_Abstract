@@ -17,7 +17,7 @@ FSPInterestStruct::FSPInterestStruct() :
 {}
 
 FSPInterestStruct::FSPInterestStruct(int32 InID) :
-	ID(ID), TakeoffPoint(nullptr)
+	ID(InID), TakeoffPoint(nullptr)
 {}
 
 FPOIDataStruct::FPOIDataStruct()
