@@ -58,8 +58,6 @@ public class SkyPlexC2 : ModuleRules
             });
         }
 
-        RuntimeDependencies.Add("$(BinaryOutputDir)/sqlite3.dll", SQLiteDLLPath);
-
         if (Target.Platform == UnrealTargetPlatform.Win64)
         {
             string SQLiteLibPath = Path.Combine(SQLitePath, "Win64", "sqlite3.lib");
@@ -68,6 +66,12 @@ public class SkyPlexC2 : ModuleRules
             {
                 SQLiteLibPath,
             });
+
+            RuntimeDependencies.Add("$(BinaryOutputDir)/sqlite3.dll", SQLiteDLLPath);
+        }
+        else if (Target.Platform == UnrealTargetPlatform.Mac)
+        {
+            PublicSystemLibraries.Add("sqlite3");
         }
 
         //if (Target.Platform == UnrealTargetPlatform.Win64) {
