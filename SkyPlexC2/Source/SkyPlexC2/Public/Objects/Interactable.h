@@ -12,7 +12,7 @@ UCLASS(Blueprintable, BlueprintType)
 class SKYPLEXC2_API AInteractable : public AActor, public IInteractionBoxProvider
 {
 	GENERATED_BODY()
-	
+
 public:
 	AInteractable();
 
@@ -21,22 +21,21 @@ public:
 	virtual void StartDrag();
 
 	UFUNCTION(BlueprintCallable)
-	void Select();
+	virtual void Select();
 
 	UFUNCTION(BlueprintCallable)
 	void Deselect(bool deleteFromGameStateSelected = true, bool unhighlight = true);
 
-
-	virtual void GetInteractionBoxKeyVals_Implementation(TMap<FString, FInteractionBoxValue>& OutKeyVals);
-	virtual void GetInteractionBoxTitle_Implementation(FText& OutTitle);
-	virtual void SetLinkedProvider_Implementation(const TScriptInterface<UInteractionBoxProvider>& InProvider);
-	virtual void GetLinkedProvider_Implementation(TScriptInterface<UInteractionBoxProvider>& OutProvider) const;
+	virtual void GetInteractionBoxKeyVals_Implementation(TMap<FString, FInteractionBoxValue> &OutKeyVals);
+	virtual void GetInteractionBoxTitle_Implementation(FText &OutTitle);
+	virtual void SetLinkedProvider_Implementation(const TScriptInterface<UInteractionBoxProvider> &InProvider);
+	virtual void GetLinkedProvider_Implementation(TScriptInterface<UInteractionBoxProvider> &OutProvider) const;
 	virtual void DestroySelf_Implementation();
 	virtual void OnInteractionBoxTitleChanged_Implementation(const FText &NewTitle);
 	virtual void ToggleCull_Implementation(bool IsCulled, bool FromFlyTo);
 
 	UFUNCTION(BlueprintCallable)
-	void GetLongitudeLatitudeHeight(FVector& OutLonLatHeight) const;
+	void GetLongitudeLatitudeHeight(FVector &OutLonLatHeight) const;
 
 	UFUNCTION(BlueprintCallable)
 	void MoveToLongitudeLatitudeHeight(FVector InLonLatHeight) const;
@@ -73,12 +72,11 @@ protected:
 	TScriptInterface<UInteractionBoxProvider> LinkedProvider;
 
 	UFUNCTION(BlueprintCallable)
-	virtual void OnHover(UPrimitiveComponent* touchedComponent);
+	virtual void OnHover(UPrimitiveComponent *touchedComponent);
 
 	UFUNCTION(BlueprintCallable)
-	virtual void OnHoverEnd(UPrimitiveComponent* touchedComponent);
+	virtual void OnHoverEnd(UPrimitiveComponent *touchedComponent);
 
 	UFUNCTION(BlueprintCallable)
-	virtual void OnClick(UPrimitiveComponent* touchedComponent, FKey buttonPressed);
+	virtual void OnClick(UPrimitiveComponent *touchedComponent, FKey buttonPressed);
 };
-

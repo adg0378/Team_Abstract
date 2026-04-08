@@ -23,7 +23,7 @@ enum class EDroneCameraType : uint8
 };
 
 /**
- * 
+ *
  */
 UCLASS(Blueprintable, BlueprintType)
 class SKYPLEXC2_API ABasicDrone : public AInteractable, public ISPCameraInterface
@@ -62,10 +62,12 @@ public:
 	UFUNCTION(BlueprintCallable)
 	bool IsSimulated() const;
 
-	virtual void SetPreferences(const FCCSimPreferencesStruct& InPrefs, const FDronePreferencesStruct& InDronePrefs);
+	virtual void SetPreferences(const FCCSimPreferencesStruct &InPrefs, const FDronePreferencesStruct &InDronePrefs);
 
-	virtual void SetPosition(const FCCSimPosition& PositionData);
-	virtual void SetStatus(const FCCSimStatus& StatusData);
+	virtual void SetPosition(const FCCSimPosition &PositionData);
+	virtual void SetStatus(const FCCSimStatus &StatusData);
+
+	virtual void Select() override;
 
 	virtual FCCSimStatus GetStatus();
 
@@ -75,8 +77,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	FCCSimPosition GetPosition() const;
 
-	virtual void GetInteractionBoxKeyVals_Implementation(TMap<FString, FInteractionBoxValue>& OutKeyVals) override;
-	virtual void GetInteractionBoxTitle_Implementation(FText& OutTitle) override;
+	virtual void GetInteractionBoxKeyVals_Implementation(TMap<FString, FInteractionBoxValue> &OutKeyVals) override;
+	virtual void GetInteractionBoxTitle_Implementation(FText &OutTitle) override;
 	virtual void DestroySelf_Implementation() override;
 
 	UFUNCTION(BlueprintCallable)
@@ -103,29 +105,29 @@ public:
 	UFUNCTION(BlueprintCallable)
 	EDroneCameraType GetCurrentDroneCamType();
 
-	virtual void GetZoomPercentage_Implementation(float& OutZoomPercentage) const;
-	virtual void GetCameraLocation_Implementation(FVector& OutCameraLocation) const;
-	virtual void GetCameraRotation_Implementation(FRotator& OutCameraRotation) const;
-	virtual void GetDevicePitch_Implementation(float& OutDevicePitch) const;
-	virtual void GetDeviceRoll_Implementation(float& OutDeviceRoll) const;
-	virtual void GetDeviceYaw_Implementation(float& OutDeviceYaw) const;
-	virtual void GetDeviceName_Implementation(FString& OutDeviceName) const;
+	virtual void GetZoomPercentage_Implementation(float &OutZoomPercentage) const;
+	virtual void GetCameraLocation_Implementation(FVector &OutCameraLocation) const;
+	virtual void GetCameraRotation_Implementation(FRotator &OutCameraRotation) const;
+	virtual void GetDevicePitch_Implementation(float &OutDevicePitch) const;
+	virtual void GetDeviceRoll_Implementation(float &OutDeviceRoll) const;
+	virtual void GetDeviceYaw_Implementation(float &OutDeviceYaw) const;
+	virtual void GetDeviceName_Implementation(FString &OutDeviceName) const;
 	virtual void ToggleCull_Implementation(bool IsCulled, bool FromFlyTo) override;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Camera", meta = (AllowPrivateAccess = "true"))
-	UCameraComponent* IsoCamera;
+	UCameraComponent *IsoCamera;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Camera", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<USpringArmComponent> IsoSpringArm;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Camera", meta = (AllowPrivateAccess = "true"))
-	UCameraComponent* DroneEyeCamera;
+	UCameraComponent *DroneEyeCamera;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Camera", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<USpringArmComponent> DroneEyeSpringArm;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Camera", meta = (AllowPrivateAccess = "true"))
-	UCameraComponent* FrontCamera;
+	UCameraComponent *FrontCamera;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Camera", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<USpringArmComponent> FrontSpringArm;
@@ -153,6 +155,7 @@ public:
 	float EYEMaxZoom = -300.0f;
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	float FrontMaxZoom = -700.0f;
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -161,7 +164,7 @@ protected:
 	int32 ID = -1;
 	int32 SwarmID = -1;
 	FString Name = "Unnamed";
-	
+
 	FCCSimPosition Position;
 	FCCSimStatus Status;
 
