@@ -125,6 +125,8 @@ bool ABasicDrone::IsSimulated() const
 void ABasicDrone::Select()
 {
 	Super::Select();
+	USPDroneManager *DroneManager = USPUtility::GetSPGameState(this)->droneManagerRef;
+	DroneManager->setSelectedDroneId(ID);
 	UE_LOG(LogTemp, Log, TEXT("Selected drone %s"), *Name);
 }
 
