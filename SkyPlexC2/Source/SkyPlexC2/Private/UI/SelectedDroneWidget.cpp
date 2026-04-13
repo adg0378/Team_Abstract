@@ -5,6 +5,9 @@
 #include "State/SPGameState.h"
 #include "SPDroneManager.h"
 #include "BasicDrone.h"
+#include "Components/TextBlock.h"
+#include "Components/ProgressBar.h"
+#include "Internationalization/Text.h"
 
 void USelectedDroneWidget::UpdateViewWithDroneData()
 {
@@ -12,12 +15,49 @@ void USelectedDroneWidget::UpdateViewWithDroneData()
 
   if (SelectedDrone)
   {
-    // Print out drone data
-    UE_LOG(LogTemp, Log, TEXT("Selected drone: %s"), *SelectedDrone->GetName());
-    UE_LOG(LogTemp, Log, TEXT("Swarm ID: %i"), SelectedDrone->GetSwarmID());
-    FCCSimPosition Position = SelectedDrone->GetPosition();
-    UE_LOG(LogTemp, Log, TEXT("Position: %f, %f, %f"), Position.lat, Position.lon, Position.alt_msl);
-    FCCSimStatus Status = SelectedDrone->GetStatus();
-    UE_LOG(LogTemp, Log, TEXT("Battery remaining: %f%%"), Status.battery_remaining);
+    // Drone name
+    if (DroneNameText)
+    {
+      DroneNameText->SetText(FText::FromString(SelectedDrone->GetName()));
+    }
+
+    // Swarm ID (int → FText is OK)
+    if (SwarmIDText)
+    {
+      SwarmIDText->SetText(FText::AsNumber(SelectedDrone->GetSwarmID()));
+    }
+
+    // Latitude (float → string → FText)
+    if (LatitudeText)
+    {
+      LatitudeText->SetText(
+          FText::FromString(FString::SanitizeFloat(SelectedDrone->GetPosition().lat)));
+    }
+
+    // Longitude (float → string → FText)
+    if (LongitudeText)
+    {
+      LongitudeText->SetText(
+          FText::FromString(FString::SanitizeFloat(SelectedDrone->GetPosition().lon)));
+    }
+
+    // Altitude (float → string → FText)
+    if (AltitudeText)
+    {
+      AltitudeText->SetText(
+          FText::FromString(FString::SanitizeFloat(SelectedDrone->GetPosition().alt_msl)));
+    }
+
+    if (SpeedText)
+    {
+      SpeedText->SetText(
+          FText::FromString(FString::SanitizeFloat(0.0f)));
+    }
+
+    // Battery (0–100 → 0–1)
+    if (BatteryProgressBar)
+    {
+      BatteryProgressBar->SetPercent(SelectedDrone->GetStatus().battery_remaining / 100.0f);
+    }
   }
 }
