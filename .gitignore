@@ -16,6 +16,12 @@ SkyPlexC2/SkyPlexC2.sln
 SkyPlexC2/.vs
 .vs
 
+# compiled stuffs
+SkyPlexC2/Binaries
+SkyPlexC2/Intermediate
+SkyPlexC2/DerivedDataCache
+SkyPlexC2/Saved
+
 # common package dir
 Windows/
 
