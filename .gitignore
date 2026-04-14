@@ -10,6 +10,8 @@ SkyPlexC2/SkyPlexUserData
 
 # tileset cache
 SkyPlexC2/*.sqlite
+SkyPlexC2/*.sqlite-wal
+SkyPlexC2/*.sqlite-shm
 
 # visual studio files
 SkyPlexC2/SkyPlexC2.sln
