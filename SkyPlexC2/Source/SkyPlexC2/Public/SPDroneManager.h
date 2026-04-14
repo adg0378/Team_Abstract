@@ -45,7 +45,6 @@ class SKYPLEXC2_API USPDroneManager : public USPManager
 	GENERATED_BODY()
 
 public:
-
 	UPROPERTY(BlueprintAssignable)
 	FDroneAddedDelegate OnDroneAdded;
 
@@ -70,7 +69,11 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	TSubclassOf<ACCSimDrone> CCSimDroneToSpawn;
 
-	void Setup_Implementation(bool& outSuccess) override;
+	int32 selectedDroneId = -1;
+
+	ABasicDrone *getSelectedDrone();
+
+	void Setup_Implementation(bool &outSuccess) override;
 	void Teardown_Implementation() override;
 	void ApplyPreferencesUpdates_Implementation(FSPPreferencesStruct PrevPreferences, FSPPreferencesStruct NewPreferences) override;
 
@@ -78,25 +81,25 @@ public:
 	FString GetSwarmName(const int32 SwarmID) const;
 
 	UFUNCTION(BlueprintCallable)
-	ABasicDrone* GetDrone(const int32 DroneID, const int32 SwarmID) const;
+	ABasicDrone *GetDrone(const int32 DroneID, const int32 SwarmID) const;
 
 	UFUNCTION(BlueprintCallable)
-	const TMap<int32, FSPSwarmStruct>& GetDrones() const;
+	const TMap<int32, FSPSwarmStruct> &GetDrones() const;
 
-	TArray<const FSPSwarmStruct*> GetSwarmDrones(const TArray<int32>& SwarmIDs) const;
-	int GetNumSwarmDrones(const TArray<int32>& SwarmIDs) const;
+	TArray<const FSPSwarmStruct *> GetSwarmDrones(const TArray<int32> &SwarmIDs) const;
+	int GetNumSwarmDrones(const TArray<int32> &SwarmIDs) const;
 
 	UFUNCTION(BlueprintCallable)
 	int32 GetUnassignedSwarmID() const;
 
 	UFUNCTION(BlueprintCallable)
-	const TMap<int32, FString>& GetSwarms() const;
+	const TMap<int32, FString> &GetSwarms() const;
 
 	UFUNCTION(BlueprintCallable)
 	int32 GetNumSimDrones() const;
 
 	UFUNCTION(BlueprintCallable)
-	void AddSwarm(FString Name, int32& OutSwarmID);
+	void AddSwarm(FString Name, int32 &OutSwarmID);
 
 	UFUNCTION(BlueprintCallable)
 	void RenameSwarm(int32 SwarmID, FString NewName);
@@ -111,7 +114,7 @@ public:
 	void ReassignDrone(int32 DroneID, int32 CurrSwarmID, int32 NewSwarmID);
 
 	UFUNCTION(BlueprintCallable)
-	void ReassignDrones(UPARAM(ref) const TMap<int32, int32>& IDToSwarmMap, int32 NewSwarmID);
+	void ReassignDrones(UPARAM(ref) const TMap<int32, int32> &IDToSwarmMap, int32 NewSwarmID);
 
 	UFUNCTION(BlueprintCallable)
 	void RenameDrone(int32 DroneID, int32 SwarmID, FString NewName);
@@ -119,8 +122,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void RemoveDrone(int32 DroneID, int32 SwarmID);
 
+	void setSelectedDroneId(int32 DroneID);
 
-	virtual void CullRelatedObjects(float MaximumDrawDistance, const FVector& OriginLocationUE, bool FromFlyTo = false) override;
+	virtual void CullRelatedObjects(float MaximumDrawDistance, const FVector &OriginLocationUE, bool FromFlyTo = false) override;
 
 	UFUNCTION(BlueprintCallable)
 	int32 GetCurrPortNum();
@@ -137,7 +141,7 @@ private:
 	TMap<int32, FString> Swarms;
 
 	UPROPERTY()
-	UCLIUtility* cli;
+	UCLIUtility *cli;
 
 	FString CCSimHost = "127.0.0.1";
 	int32 CCSimPort = 8765;

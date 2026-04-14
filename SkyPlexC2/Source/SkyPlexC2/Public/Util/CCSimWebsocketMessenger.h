@@ -12,7 +12,8 @@ class ACCSimDrone;
 // PX4 commands require uint16 but Unreal Engine currently only supports uint8
 // We may have to come up with a workaround in the future but this works alright for now
 UENUM(BlueprintType)
-enum class ECCSimCommand : uint8 {
+enum class ECCSimCommand : uint8
+{
 	ARM = 0,
 	DISARM = 1,
 	TAKEOFF = 2,
@@ -31,7 +32,8 @@ enum class ECCSimCommand : uint8 {
 };
 
 UENUM(BlueprintType)
-enum class ECCSimRecieveChannel : uint8 {
+enum class ECCSimRecieveChannel : uint8
+{
 	PONG = 0,
 	POSITION = 1,
 	STATUS = 2,
@@ -43,20 +45,23 @@ enum class ECCSimRecieveChannel : uint8 {
 };
 
 UENUM()
-enum class EMissionUploadAction : uint8 {
+enum class EMissionUploadAction : uint8
+{
 	DO_NOTHING = 0,
 	START = 1,
 };
 
 UENUM()
-enum class EMissionUploadAckResult : uint8 {
+enum class EMissionUploadAckResult : uint8
+{
 	SUCCESS = 0,
 	UPLOAD_FAILURE = 1,
 	ACTION_FAILURE = 2,
 };
 
 UENUM()
-enum class PX4Command : uint8 {
+enum class PX4Command : uint8
+{
 	WAYPOINT = 16,
 	RETURN_TO_LAUNCH = 20,
 	TAKEOFF = 22,
@@ -64,24 +69,28 @@ enum class PX4Command : uint8 {
 };
 
 UENUM()
-enum class ECCSimRespondChannel : uint8 {
+enum class ECCSimRespondChannel : uint8
+{
 	PING = 0,
 	COMMAND = 1,
 	MISSION = 2,
 };
 
 USTRUCT()
-struct FCCSimDataUnsupported {
+struct FCCSimDataUnsupported
+{
 	GENERATED_BODY()
 };
 
 USTRUCT()
-struct FCCSimDataError {
+struct FCCSimDataError
+{
 	GENERATED_BODY()
 };
 
 USTRUCT(BlueprintType)
-struct FCCSimPosition {
+struct FCCSimPosition
+{
 	GENERATED_BODY()
 
 public:
@@ -105,7 +114,8 @@ public:
 };
 
 USTRUCT()
-struct FCCSimStatus {
+struct FCCSimStatus
+{
 	GENERATED_BODY()
 
 public:
@@ -135,10 +145,10 @@ public:
 };
 
 USTRUCT()
-struct FCCSimCommandAck {
+struct FCCSimCommandAck
+{
 	GENERATED_BODY()
 public:
-
 	UPROPERTY()
 	int command;
 
@@ -156,7 +166,8 @@ public:
 };
 
 USTRUCT()
-struct FCCSimMissionAck {
+struct FCCSimMissionAck
+{
 	GENERATED_BODY()
 public:
 	UPROPERTY()
@@ -167,7 +178,8 @@ public:
 };
 
 USTRUCT()
-struct FCCSimMissionFinished {
+struct FCCSimMissionFinished
+{
 	GENERATED_BODY()
 public:
 	UPROPERTY()
@@ -175,18 +187,17 @@ public:
 };
 
 using FCCSimDataVariant = TVariant<
-	FCCSimDataUnsupported,
-	FCCSimDataError,
-	FCCSimPosition,
-	FCCSimStatus,
-	FCCSimCommandAck,
-	FCCSimMissionAck,
-	FCCSimMissionFinished
->;
-
+		FCCSimDataUnsupported,
+		FCCSimDataError,
+		FCCSimPosition,
+		FCCSimStatus,
+		FCCSimCommandAck,
+		FCCSimMissionAck,
+		FCCSimMissionFinished>;
 
 UENUM(BlueprintType)
-enum class ECommandWidgetParamType : uint8 {
+enum class ECommandWidgetParamType : uint8
+{
 	NONE,
 	LATITUDE,
 	LONGITUDE,
@@ -194,9 +205,9 @@ enum class ECommandWidgetParamType : uint8 {
 	FLOAT,
 };
 
-
 USTRUCT(BlueprintType)
-struct FCommandWidgetParamSchema {
+struct FCommandWidgetParamSchema
+{
 	GENERATED_BODY()
 
 public:
@@ -213,17 +224,16 @@ public:
 	FString Unit;
 
 	FCommandWidgetParamSchema(
-		ECommandWidgetParamType InType = ECommandWidgetParamType::NONE,
-		float InDefaultValue = 0.0,
-		FString InLabel = TEXT(""),
-		FString InUnit = TEXT("")
-	)
-		: Type(InType), DefaultValue(InDefaultValue), Label(InLabel), Unit(InUnit) { }
+			ECommandWidgetParamType InType = ECommandWidgetParamType::NONE,
+			float InDefaultValue = 0.0,
+			FString InLabel = TEXT(""),
+			FString InUnit = TEXT(""))
+			: Type(InType), DefaultValue(InDefaultValue), Label(InLabel), Unit(InUnit) {}
 };
 
-
 USTRUCT(BlueprintType)
-struct FCommandWidgetSchema {
+struct FCommandWidgetSchema
+{
 	GENERATED_BODY()
 
 public:
@@ -246,25 +256,24 @@ public:
 	FCommandWidgetParamSchema Param6;
 
 	FCommandWidgetSchema(
-		FCommandWidgetParamSchema InParam1 = FCommandWidgetParamSchema(),
-		FCommandWidgetParamSchema InParam2 = FCommandWidgetParamSchema(),
-		FCommandWidgetParamSchema InParam3 = FCommandWidgetParamSchema(),
-		FCommandWidgetParamSchema InParam4 = FCommandWidgetParamSchema(),
-		FCommandWidgetParamSchema InParam5 = FCommandWidgetParamSchema(),
-		FCommandWidgetParamSchema InParam6 = FCommandWidgetParamSchema()
-	) :
-		Param1(InParam1),
-		Param2(InParam2),
-		Param3(InParam3),
-		Param4(InParam4),
-		Param5(InParam5),
-		Param6(InParam6) {
+			FCommandWidgetParamSchema InParam1 = FCommandWidgetParamSchema(),
+			FCommandWidgetParamSchema InParam2 = FCommandWidgetParamSchema(),
+			FCommandWidgetParamSchema InParam3 = FCommandWidgetParamSchema(),
+			FCommandWidgetParamSchema InParam4 = FCommandWidgetParamSchema(),
+			FCommandWidgetParamSchema InParam5 = FCommandWidgetParamSchema(),
+			FCommandWidgetParamSchema InParam6 = FCommandWidgetParamSchema()) : Param1(InParam1),
+																																					Param2(InParam2),
+																																					Param3(InParam3),
+																																					Param4(InParam4),
+																																					Param5(InParam5),
+																																					Param6(InParam6)
+	{
 	}
 };
 
-
 USTRUCT(BlueprintType)
-struct FCommandWidgetGenericParams {
+struct FCommandWidgetGenericParams
+{
 	GENERATED_BODY()
 
 public:
@@ -288,7 +297,8 @@ public:
 };
 
 USTRUCT(BlueprintType)
-struct FCommandDeclaration {
+struct FCommandDeclaration
+{
 	GENERATED_BODY()
 
 public:
@@ -311,8 +321,7 @@ class SKYPLEXC2_API UCCSimWebsocketMessenger : public UBlueprintFunctionLibrary
 	GENERATED_BODY()
 
 public:
-
-	static FCCSimDataVariant ParseCCSimMessage(const FString& Message, ECCSimRecieveChannel* OutChannel = nullptr);
+	static FCCSimDataVariant ParseCCSimMessage(const FString &Message, ECCSimRecieveChannel *OutChannel = nullptr);
 
 	static FString MakeCCSimCommandMessage(ECCSimCommand Command, TSharedPtr<FJsonObject> Params);
 
@@ -330,8 +339,8 @@ public:
 	static FCommandWidgetSchema GetCommandWidgetSchema(ECCSimCommand Command);
 
 	UFUNCTION(BlueprintCallable)
-	static void CallDroneCommandFromGenericParams(ACCSimDrone* Drone, ECCSimCommand Command, FCommandWidgetGenericParams Params);
+	static void CallDroneCommandFromGenericParams(ACCSimDrone *Drone, ECCSimCommand Command, FCommandWidgetGenericParams Params);
 
 	UFUNCTION(BlueprintCallable)
-	static void CallDroneCommandWithNoParams(ACCSimDrone* Drone, ECCSimCommand Command);
+	static void CallDroneCommandWithNoParams(ACCSimDrone *Drone, ECCSimCommand Command);
 };
